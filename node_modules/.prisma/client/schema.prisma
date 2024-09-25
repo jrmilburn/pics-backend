@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  username       String   @unique
+  firstName      String?
+  lastName       String?
+  profilePicture String?
+  bio            String?
+  password       String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  posts            Post[]
+  comments         Comment[]
+  messagesSent     Message[]     @relation("UserMessagesSent")
+  messagesReceived Message[]     @relation("UserMessagesReceived")
+  postLikes        PostLike[]
+  commentLikes     CommentLike[]
+
+  following UserFollow[] @relation("following")
+  followers UserFollow[] @relation("followers")
+
+  @@map("users")
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  userId    String
+  caption   String?
+  image     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author   User       @relation(fields: [userId], references: [id])
+  comments Comment[]
+  likes    PostLike[]
+
+  @@map("posts")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  parentId  String?
+
+  author User          @relation(fields: [userId], references: [id])
+  post   Post          @relation(fields: [postId], references: [id])
+  likes  CommentLike[]
+
+  @@map("comments")
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  text       String
+  createdAt  DateTime @default(now())
+
+  sender   User @relation("UserMessagesSent", fields: [senderId], references: [id])
+  receiver User @relation("UserMessagesReceived", fields: [receiverId], references: [id])
+
+  @@map("messages")
+}
+
+model PostLike {
+  postId  String
+  userId  String
+  likedAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@id([postId, userId])
+  @@map("post_likes")
+}
+
+model CommentLike {
+  commentId String
+  userId    String
+  likedAt   DateTime @default(now())
+
+  comment Comment @relation(fields: [commentId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@id([commentId, userId])
+  @@map("comment_likes")
+}
+
+model UserFollow {
+  fromUserId String
+  toUserId   String
+  followedAt DateTime @default(now())
+
+  fromUser User @relation("following", fields: [fromUserId], references: [id])
+  toUser   User @relation("followers", fields: [toUserId], references: [id])
+
+  @@id([fromUserId, toUserId])
+}
