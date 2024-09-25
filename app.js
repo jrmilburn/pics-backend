@@ -70,7 +70,7 @@ app.use((req, res, next) => {
 const PORT = process.env.PORT || 3000;
 
 // Server listening
-server.listen(3000, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
