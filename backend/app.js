@@ -7,6 +7,7 @@ const { passport, prisma } = require('./config/passport');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require("socket.io");
+require("dotenv").config();
 
 const userRouter = require('./routes/userRoutes');
 const authRouter = require('./routes/authRoutes');
