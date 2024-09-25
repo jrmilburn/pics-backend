@@ -20,7 +20,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://resplendent-concha-000c5d.netlify.app/", // Your frontend URL
+    origin: "https://resplendent-concha-000c5d.netlify.app", // Your frontend URL
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
@@ -30,7 +30,10 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({
+  origin: "https://resplendent-concha-000c5d.netlify.app",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+}));
 app.use(passport.initialize());
 
 // Static file serving
